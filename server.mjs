@@ -46,12 +46,12 @@ const server = createServer(async (req, res) => {
   } catch (error) {
     console.error(error);
     sendJson(res, 500, {
-      error: error instanceof Error ? error.message : "Something went wrong."
+      error: error instanceof Error ? error.message : "Something went wrong.",
     });
   }
 });
 
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Ticker Maker running at http://localhost:${port}`);
   console.log(`Using FFmpeg command: ${ffmpegCommand}`);
 });
@@ -69,7 +69,7 @@ async function handleExport(req, res, url) {
     res.writeHead(200, {
       "Content-Type": "video/mp4",
       "Content-Length": outputStat.size,
-      "Content-Disposition": 'attachment; filename="ticker-maker-export.mp4"'
+      "Content-Disposition": 'attachment; filename="ticker-maker-export.mp4"',
     });
 
     createReadStream(outputPath)
@@ -82,7 +82,7 @@ async function handleExport(req, res, url) {
     cleanup(uploadPath);
     cleanup(outputPath);
     sendJson(res, 500, {
-      error: error instanceof Error ? error.message : "Could not render video."
+      error: error instanceof Error ? error.message : "Could not render video.",
     });
   }
 }
@@ -99,7 +99,7 @@ async function handleTranscode(req, res) {
     res.writeHead(200, {
       "Content-Type": "video/mp4",
       "Content-Length": outputStat.size,
-      "Content-Disposition": 'attachment; filename="ticker-maker-export.mp4"'
+      "Content-Disposition": 'attachment; filename="ticker-maker-export.mp4"',
     });
 
     createReadStream(outputPath)
@@ -115,7 +115,7 @@ async function handleTranscode(req, res) {
       error:
         error instanceof Error
           ? `Browser render succeeded, but MP4 conversion failed.\n${error.message}`
-          : "Browser render succeeded, but MP4 conversion failed."
+          : "Browser render succeeded, but MP4 conversion failed.",
     });
   }
 }
@@ -148,7 +148,8 @@ function parseSettings(raw) {
         : "BREAKING ... TICKER MAKER ...",
     bannerColor: sanitizeHex(parsed.bannerColor, "#050505"),
     textColor: sanitizeHex(parsed.textColor, "#ffffff"),
-    fontFamily: typeof parsed.fontFamily === "string" ? parsed.fontFamily : "Arial Black",
+    fontFamily:
+      typeof parsed.fontFamily === "string" ? parsed.fontFamily : "Arial Black",
     fontSize: clamp(Number(parsed.fontSize) || 42, 24, 96),
     bannerHeight: clamp(Number(parsed.bannerHeight) || 140, 80, 320),
     opacity: clamp(Number(parsed.opacity) || 0.88, 0.1, 1),
@@ -156,8 +157,8 @@ function parseSettings(raw) {
     verticalPosition: clamp(
       Number(parsed.verticalPosition ?? (parsed.placement === "top" ? 0 : 100)),
       0,
-      100
-    )
+      100,
+    ),
   };
 }
 
@@ -192,22 +193,22 @@ async function renderTickerVideo(inputPath, outputPath, settings) {
   try {
     await renderTickerVideoWithSvgOverlay(inputPath, outputPath, settings);
   } catch (svgError) {
-      throw new Error(
-        [
-          "FFmpeg could not render the ticker with drawtext, subtitles, or SVG overlay fallback.",
-          `The app is currently using: ${ffmpegCommand}.`,
-          "Run `/opt/homebrew/bin/ffmpeg -filters | grep -E \"drawtext|subtitles|overlay\"` and `/opt/homebrew/bin/ffmpeg -decoders | grep svg` in Terminal to see what your FFmpeg supports.",
-          "",
-          "Drawtext error:",
-          trimStderr(drawtextError?.stderr),
-          "",
-          "Subtitle fallback error:",
-          trimStderr(subtitleError?.stderr),
-          "",
-          "SVG overlay fallback error:",
-          trimStderr(svgError.stderr)
-        ].join("\n")
-      );
+    throw new Error(
+      [
+        "FFmpeg could not render the ticker with drawtext, subtitles, or SVG overlay fallback.",
+        `The app is currently using: ${ffmpegCommand}.`,
+        'Run `/opt/homebrew/bin/ffmpeg -filters | grep -E "drawtext|subtitles|overlay"` and `/opt/homebrew/bin/ffmpeg -decoders | grep svg` in Terminal to see what your FFmpeg supports.',
+        "",
+        "Drawtext error:",
+        trimStderr(drawtextError?.stderr),
+        "",
+        "Subtitle fallback error:",
+        trimStderr(subtitleError?.stderr),
+        "",
+        "SVG overlay fallback error:",
+        trimStderr(svgError.stderr),
+      ].join("\n"),
+    );
   }
 }
 
@@ -223,13 +224,13 @@ function renderTickerVideoWithDrawtext(inputPath, outputPath, settings) {
     "scale='if(gt(a,9/16),-1,1080)':'if(gt(a,9/16),1920,-1)'",
     "crop=1080:1920",
     `drawbox=x=0:y=${bannerY}:w=iw:h=${bannerHeight}:color=${hexForFfmpeg(
-      settings.bannerColor
+      settings.bannerColor,
     )}@${settings.opacity.toFixed(2)}:t=fill`,
     `drawtext=${fontOption}:text='${escapeDrawtext(
-      settings.text
+      settings.text,
     )}':fontcolor=${hexForFfmpeg(settings.textColor)}:fontsize=${Math.round(
-      settings.fontSize
-    )}:x='w-mod(t*${ffmpegSpeed}\\,w+tw)':y='${bannerY}+(${bannerHeight}-th)/2'`
+      settings.fontSize,
+    )}:x='w-mod(t*${ffmpegSpeed}\\,w+tw)':y='${bannerY}+(${bannerHeight}-th)/2'`,
   ].join(",");
 
   const args = [
@@ -254,7 +255,7 @@ function renderTickerVideoWithDrawtext(inputPath, outputPath, settings) {
     "aac",
     "-movflags",
     "+faststart",
-    outputPath
+    outputPath,
   ];
 
   return runProcess(ffmpegCommand, args);
@@ -281,7 +282,7 @@ async function transcodeToMp4(inputPath, outputPath) {
     "aac",
     "-movflags",
     "+faststart",
-    outputPath
+    outputPath,
   ];
 
   try {
@@ -304,9 +305,9 @@ async function renderTickerVideoWithSubtitles(inputPath, outputPath, settings) {
     "scale='if(gt(a,9/16),-1,1080)':'if(gt(a,9/16),1920,-1)'",
     "crop=1080:1920",
     `drawbox=x=0:y=${bannerY}:w=iw:h=${bannerHeight}:color=${hexForFfmpeg(
-      settings.bannerColor
+      settings.bannerColor,
     )}@${settings.opacity.toFixed(2)}:t=fill`,
-    `subtitles=filename='${escapeFilterPath(assPath)}'`
+    `subtitles=filename='${escapeFilterPath(assPath)}'`,
   ].join(",");
 
   const args = [
@@ -331,7 +332,7 @@ async function renderTickerVideoWithSubtitles(inputPath, outputPath, settings) {
     "aac",
     "-movflags",
     "+faststart",
-    outputPath
+    outputPath,
   ];
 
   try {
@@ -341,7 +342,11 @@ async function renderTickerVideoWithSubtitles(inputPath, outputPath, settings) {
   }
 }
 
-async function renderTickerVideoWithSvgOverlay(inputPath, outputPath, settings) {
+async function renderTickerVideoWithSvgOverlay(
+  inputPath,
+  outputPath,
+  settings,
+) {
   const bannerHeight = Math.round(settings.bannerHeight);
   const ffmpegSpeed = Math.round(settings.speed * 28);
   const svgPath = path.join(outputDir, `${Date.now()}-ticker.svg`);
@@ -353,14 +358,14 @@ async function renderTickerVideoWithSvgOverlay(inputPath, outputPath, settings) 
     "scale='if(gt(a,9/16),-1,1080)':'if(gt(a,9/16),1920,-1)'",
     "crop=1080:1920",
     `drawbox=x=0:y=(h-${bannerHeight})*${settings.verticalPosition}/100:w=iw:h=${bannerHeight}:color=${hexForFfmpeg(
-      settings.bannerColor
-    )}@${settings.opacity.toFixed(2)}:t=fill`
+      settings.bannerColor,
+    )}@${settings.opacity.toFixed(2)}:t=fill`,
   ].join(",");
 
   const filter = [
     `[0:v]${videoFilter}[base]`,
     "[1:v]format=rgba[ticker]",
-    `[base][ticker]overlay=x='main_w-mod(t*${ffmpegSpeed}\\,main_w+overlay_w)':y='(main_h-${bannerHeight})*${settings.verticalPosition}/100':format=auto[v]`
+    `[base][ticker]overlay=x='main_w-mod(t*${ffmpegSpeed}\\,main_w+overlay_w)':y='(main_h-${bannerHeight})*${settings.verticalPosition}/100':format=auto[v]`,
   ].join(";");
 
   const args = [
@@ -390,7 +395,7 @@ async function renderTickerVideoWithSvgOverlay(inputPath, outputPath, settings) 
     "-shortest",
     "-movflags",
     "+faststart",
-    outputPath
+    outputPath,
   ];
 
   try {
@@ -421,11 +426,17 @@ function runProcess(command, args) {
               "FFmpeg was not found on this computer.",
               `The app tried to use: ${command}.`,
               "Install it with `brew install ffmpeg`, then restart the app.",
-              "If FFmpeg is already installed, run the app with `FFMPEG_PATH=/path/to/ffmpeg npm run dev`."
+              "If FFmpeg is already installed, run the app with `FFMPEG_PATH=/path/to/ffmpeg npm run dev`.",
             ].join(" ")
           : error.message;
 
-      reject(Object.assign(new Error(message), { stderr, stdout, originalError: error }));
+      reject(
+        Object.assign(new Error(message), {
+          stderr,
+          stdout,
+          originalError: error,
+        }),
+      );
     });
 
     child.on("close", (code) => {
@@ -438,8 +449,8 @@ function runProcess(command, args) {
         Object.assign(new Error(`Process failed with exit code ${code}.`), {
           stderr,
           stdout,
-          exitCode: code
-        })
+          exitCode: code,
+        }),
       );
     });
   });
@@ -452,14 +463,27 @@ function formatFfmpegError(error) {
 
 async function detectFfmpegFilters() {
   try {
-    const filters = await runProcess(ffmpegCommand, ["-hide_banner", "-filters"]);
-    const decoders = await runProcess(ffmpegCommand, ["-hide_banner", "-decoders"]);
+    const filters = await runProcess(ffmpegCommand, [
+      "-hide_banner",
+      "-filters",
+    ]);
+    const decoders = await runProcess(ffmpegCommand, [
+      "-hide_banner",
+      "-decoders",
+    ]);
     return {
-      drawtext: filters.stdout.includes("drawtext") || filters.stderr.includes("drawtext"),
-      subtitles: filters.stdout.includes("subtitles") || filters.stderr.includes("subtitles"),
-      overlay: filters.stdout.includes("overlay") || filters.stderr.includes("overlay"),
-      svg: decoders.stdout.toLowerCase().includes("svg")
-        || decoders.stderr.toLowerCase().includes("svg")
+      drawtext:
+        filters.stdout.includes("drawtext") ||
+        filters.stderr.includes("drawtext"),
+      subtitles:
+        filters.stdout.includes("subtitles") ||
+        filters.stderr.includes("subtitles"),
+      overlay:
+        filters.stdout.includes("overlay") ||
+        filters.stderr.includes("overlay"),
+      svg:
+        decoders.stdout.toLowerCase().includes("svg") ||
+        decoders.stderr.toLowerCase().includes("svg"),
     };
   } catch {
     return { drawtext: false, subtitles: false, overlay: false, svg: false };
@@ -477,7 +501,7 @@ async function getVideoDuration(inputPath) {
       "format=duration",
       "-of",
       "default=noprint_wrappers=1:nokey=1",
-      inputPath
+      inputPath,
     ]);
     const duration = Number.parseFloat(result.stdout.trim());
     return Number.isFinite(duration) && duration > 0 ? duration : 30;
@@ -491,7 +515,10 @@ function makeTickerAss(settings, duration, bannerHeight) {
   const top = ((1920 - bannerHeight) * settings.verticalPosition) / 100;
   const baseline = Math.round(top + (bannerHeight + fontSize * 0.72) / 2);
   const durationMs = Math.max(1000, Math.round(duration * 1000));
-  const estimatedTextWidth = Math.max(1600, Math.round(settings.text.length * fontSize * 0.7));
+  const estimatedTextWidth = Math.max(
+    1600,
+    Math.round(settings.text.length * fontSize * 0.7),
+  );
   const endX = -estimatedTextWidth - 160;
   const color = hexToAssColor(settings.textColor);
   const fontFamily = escapeAssPlainText(settings.fontFamily);
@@ -510,23 +537,26 @@ function makeTickerAss(settings, duration, bannerHeight) {
     "",
     "[Events]",
     "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
-    `Dialogue: 0,0:00:00.00,${formatAssTime(duration)},Ticker,,0,0,0,,{\\move(1080,${baseline},${endX},${baseline},0,${durationMs})}${text}`
+    `Dialogue: 0,0:00:00.00,${formatAssTime(duration)},Ticker,,0,0,0,,{\\move(1080,${baseline},${endX},${baseline},0,${durationMs})}${text}`,
   ].join("\n");
 }
 
 function makeTickerSvg(settings, bannerHeight) {
   const fontSize = Math.round(settings.fontSize);
-  const width = Math.max(1800, Math.round(settings.text.length * fontSize * 0.76) + 240);
+  const width = Math.max(
+    1800,
+    Math.round(settings.text.length * fontSize * 0.76) + 240,
+  );
   const y = Math.round(bannerHeight / 2);
 
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${bannerHeight}" viewBox="0 0 ${width} ${bannerHeight}">`,
     `<text x="80" y="${y}" fill="${settings.textColor}" font-family="${escapeXml(
-      settings.fontFamily
+      settings.fontFamily,
     )}" font-size="${fontSize}" font-weight="900" dominant-baseline="middle">${escapeXml(
-      settings.text
+      settings.text,
     )}</text>`,
-    "</svg>"
+    "</svg>",
   ].join("");
 }
 
@@ -630,7 +660,10 @@ function escapeDrawtext(text) {
 }
 
 function escapeFilterPath(filePath) {
-  return filePath.replace(/\\/g, "\\\\").replace(/:/g, "\\:").replace(/'/g, "\\'");
+  return filePath
+    .replace(/\\/g, "\\\\")
+    .replace(/:/g, "\\:")
+    .replace(/'/g, "\\'");
 }
 
 function resolveFont(fontFamily) {
@@ -638,24 +671,24 @@ function resolveFont(fontFamily) {
     "Arial Black": [
       "/System/Library/Fonts/Supplemental/Arial Black.ttf",
       "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+      "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
     ],
     Impact: [
       "/System/Library/Fonts/Supplemental/Impact.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf"
+      "/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf",
     ],
     "Courier New": [
       "/System/Library/Fonts/Supplemental/Courier New Bold.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
+      "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf",
     ],
     Georgia: [
       "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
+      "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
     ],
     Verdana: [
       "/System/Library/Fonts/Supplemental/Verdana.ttf",
-      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-    ]
+      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ],
   };
 
   const candidates = fontsByFamily[fontFamily] || fontsByFamily["Arial Black"];
@@ -668,7 +701,7 @@ function resolveFfmpegCommand() {
   const candidates = [
     "/opt/homebrew/bin/ffmpeg",
     "/usr/local/bin/ffmpeg",
-    "/usr/bin/ffmpeg"
+    "/usr/bin/ffmpeg",
   ];
 
   return candidates.find((candidate) => existsSync(candidate)) || "ffmpeg";
@@ -685,7 +718,7 @@ function resolveFfprobeCommand() {
   const candidates = [
     "/opt/homebrew/bin/ffprobe",
     "/usr/local/bin/ffprobe",
-    "/usr/bin/ffprobe"
+    "/usr/bin/ffprobe",
   ];
 
   return candidates.find((candidate) => existsSync(candidate)) || "ffprobe";
