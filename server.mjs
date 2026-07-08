@@ -52,7 +52,7 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(port, "0.0.0.0", () => {
-  console.log(`Ticker Maker running at http://localhost:${port}`);
+  console.log(`Ticker Maker running on port ${port}`);
   console.log(`Using FFmpeg command: ${ffmpegCommand}`);
 });
 
@@ -246,9 +246,9 @@ function renderTickerVideoWithDrawtext(inputPath, outputPath, settings) {
     "-c:v",
     "libx264",
     "-preset",
-    "veryfast",
+    "ultrafast",
     "-crf",
-    "23",
+    "28",
     "-pix_fmt",
     "yuv420p",
     "-c:a",
@@ -273,9 +273,9 @@ async function transcodeToMp4(inputPath, outputPath) {
     "-c:v",
     "libx264",
     "-preset",
-    "veryfast",
+    "ultrafast",
     "-crf",
-    "23",
+    "28",
     "-pix_fmt",
     "yuv420p",
     "-c:a",
@@ -323,9 +323,9 @@ async function renderTickerVideoWithSubtitles(inputPath, outputPath, settings) {
     "-c:v",
     "libx264",
     "-preset",
-    "veryfast",
+    "ultrafast",
     "-crf",
-    "23",
+    "28",
     "-pix_fmt",
     "yuv420p",
     "-c:a",
@@ -385,9 +385,9 @@ async function renderTickerVideoWithSvgOverlay(
     "-c:v",
     "libx264",
     "-preset",
-    "veryfast",
+    "ultrafast",
     "-crf",
-    "23",
+    "28",
     "-pix_fmt",
     "yuv420p",
     "-c:a",

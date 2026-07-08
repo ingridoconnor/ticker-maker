@@ -181,32 +181,25 @@ dom.exportButton.addEventListener("click", async () => {
   if (!videoFile) return;
 
   dom.exportButton.disabled = true;
-  dom.exportButton.textContent = "Rendering in browser...";
+  dom.exportButton.textContent = "Rendering on server...";
   dom.downloadLink.hidden = true;
   setError("");
 
   try {
-    const webmBlob = await renderBrowserExport();
-    dom.exportButton.textContent = "Converting to MP4...";
-
-    const response = await fetch("/api/transcode", {
-      method: "POST",
-      headers: {
-        "Content-Type": "video/webm",
+    const response = await fetch(
+      `/api/export?settings=${encodeURIComponent(JSON.stringify(settings))}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": videoFile.type || "application/octet-stream",
+        },
+        body: videoFile,
       },
-      body: webmBlob,
-    });
+    );
 
     if (!response.ok) {
       const body = await response.json().catch(() => null);
-      const webmUrl = URL.createObjectURL(webmBlob);
-      dom.downloadLink.href = webmUrl;
-      dom.downloadLink.download = "ticker-maker-export.webm";
-      dom.downloadLink.textContent = "Download WebM export";
-      dom.downloadLink.hidden = false;
-      throw new Error(
-        `${body?.error || "MP4 conversion failed."}\nA WebM export is available below.`,
-      );
+      throw new Error(body?.error || "Export failed.");
     }
 
     const blob = await response.blob();
