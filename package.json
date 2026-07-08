@@ -1,0 +1,10 @@
+{
+  "name": "ticker-maker",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A local full-stack prototype for making customizable scrolling ticker videos.",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs"
+  }
+}

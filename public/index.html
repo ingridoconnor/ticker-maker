@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ticker Maker</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚨</text></svg>"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Reusable video ticker generator</p>
+          <h1>Ticker Maker</h1>
+          <p>
+            Upload a clip, write the crawl, tune the broadcast chaos, and export
+            a vertical MP4 for Instagram.
+          </p>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <div class="previewPanel">
+          <div class="phoneFrame">
+            <video id="previewVideo" loop class="previewVideo" hidden></video>
+            <div id="emptyPreview" class="emptyPreview">
+              <span>Upload a video to preview the ticker.</span>
+            </div>
+
+            <div id="tickerBar" class="tickerBar">
+              <div id="tickerText" class="tickerText"></div>
+            </div>
+          </div>
+
+          <div class="previewControls">
+            <button id="playButton" disabled>Play</button>
+            <button id="restartButton" disabled>Restart</button>
+            <button id="muteButton" disabled>Mute</button>
+            <span id="timeLabel">0:00 / 0:00</span>
+          </div>
+
+          <div class="exportRow">
+            <button id="exportButton" disabled>Export MP4</button>
+            <a id="downloadLink" hidden download="ticker-maker-export.mp4"
+              >Download export</a
+            >
+          </div>
+          <p id="error" class="error" hidden></p>
+        </div>
+
+        <aside class="controls">
+          <label class="uploadBox">
+            <span>Upload Video</span>
+            <input
+              id="videoInput"
+              type="file"
+              accept="video/mp4,video/quicktime,video/*"
+            />
+            <small id="fileName">MP4 or MOV works best.</small>
+          </label>
+
+          <div class="controlGroup">
+            <span class="groupLabel">Presets</span>
+            <div class="presetGrid">
+              <button class="presetButton" data-preset="classic">
+                Classic News
+              </button>
+              <button class="presetButton" data-preset="emergency">
+                Emergency
+              </button>
+              <button class="presetButton" data-preset="tabloid">
+                Tabloid
+              </button>
+              <button class="presetButton" data-preset="publicAccess">
+                Public Access
+              </button>
+            </div>
+          </div>
+
+          <label>
+            <span>Ticker Text</span>
+            <textarea id="textInput" rows="5"></textarea>
+          </label>
+
+          <div class="twoCol">
+            <label>
+              <span>Banner</span>
+              <input id="bannerColorInput" type="color" />
+            </label>
+            <label>
+              <span>Text</span>
+              <input id="textColorInput" type="color" />
+            </label>
+          </div>
+
+          <label>
+            <span>Font</span>
+            <select id="fontInput">
+              <option>Arial Black</option>
+              <option>Impact</option>
+              <option>Courier New</option>
+              <option>Georgia</option>
+              <option>Verdana</option>
+            </select>
+          </label>
+
+          <label>
+            <span id="fontSizeLabel">Font Size</span>
+            <input id="fontSizeInput" type="range" min="24" max="76" />
+          </label>
+
+          <label>
+            <span id="bannerHeightLabel">Banner Height</span>
+            <input id="bannerHeightInput" type="range" min="80" max="240" />
+          </label>
+
+          <label>
+            <span id="opacityLabel">Opacity</span>
+            <input
+              id="opacityInput"
+              type="range"
+              min="0.35"
+              max="1"
+              step="0.01"
+            />
+          </label>
+
+          <label>
+            <span id="speedLabel">Speed</span>
+            <input id="speedInput" type="range" min="4" max="24" />
+          </label>
+
+          <label>
+            <span id="verticalPositionLabel">Vertical Position</span>
+            <input id="verticalPositionInput" type="range" min="0" max="100" />
+          </label>
+        </aside>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
