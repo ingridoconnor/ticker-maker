@@ -13,6 +13,8 @@ const uploadDir = path.join(tmpDir, "uploads");
 const outputDir = path.join(tmpDir, "outputs");
 const port = Number(process.env.PORT || 4000);
 const ffmpegCommand = resolveFfmpegCommand();
+const OUTPUT_WIDTH = 1080;
+const OUTPUT_HEIGHT = 1920;
 
 await mkdir(uploadDir, { recursive: true });
 await mkdir(outputDir, { recursive: true });
@@ -216,10 +218,14 @@ function renderTickerVideoWithDrawtext(inputPath, outputPath, settings) {
   const fontPath = resolveFont(settings.fontFamily);
   const ffmpegSpeed = Math.round(settings.speed * 28);
   const bannerHeight = Math.round(settings.bannerHeight);
-  const bannerY = `(h-${bannerHeight})*${settings.verticalPosition}/100`;
+  const bannerY = Math.round(
+    ((OUTPUT_HEIGHT - bannerHeight) * settings.verticalPosition) / 100,
+  );
+
   const fontOption = fontPath
     ? `fontfile='${escapeFilterPath(fontPath)}'`
     : `font='${escapeDrawtext(settings.fontFamily)}'`;
+
   const filter = [
     "scale='if(gt(a,9/16),-1,1080)':'if(gt(a,9/16),1920,-1)'",
     "crop=1080:1920",
@@ -295,7 +301,9 @@ async function transcodeToMp4(inputPath, outputPath) {
 async function renderTickerVideoWithSubtitles(inputPath, outputPath, settings) {
   const duration = await getVideoDuration(inputPath);
   const bannerHeight = Math.round(settings.bannerHeight);
-  const bannerY = `(h-${bannerHeight})*${settings.verticalPosition}/100`;
+  const bannerY = Math.round(
+    ((OUTPUT_HEIGHT - bannerHeight) * settings.verticalPosition) / 100,
+  );
   const assPath = path.join(outputDir, `${Date.now()}-ticker.ass`);
   const ass = makeTickerAss(settings, duration, bannerHeight);
 
@@ -348,6 +356,9 @@ async function renderTickerVideoWithSvgOverlay(
   settings,
 ) {
   const bannerHeight = Math.round(settings.bannerHeight);
+  const bannerY = Math.round(
+    ((OUTPUT_HEIGHT - bannerHeight) * settings.verticalPosition) / 100,
+  );
   const ffmpegSpeed = Math.round(settings.speed * 28);
   const svgPath = path.join(outputDir, `${Date.now()}-ticker.svg`);
   const svg = makeTickerSvg(settings, bannerHeight);
@@ -357,7 +368,7 @@ async function renderTickerVideoWithSvgOverlay(
   const videoFilter = [
     "scale='if(gt(a,9/16),-1,1080)':'if(gt(a,9/16),1920,-1)'",
     "crop=1080:1920",
-    `drawbox=x=0:y=(h-${bannerHeight})*${settings.verticalPosition}/100:w=iw:h=${bannerHeight}:color=${hexForFfmpeg(
+    `drawbox=x=0:y=${bannerY}:w=iw:h=${bannerHeight}:color=${hexForFfmpeg(
       settings.bannerColor,
     )}@${settings.opacity.toFixed(2)}:t=fill`,
   ].join(",");
@@ -365,7 +376,7 @@ async function renderTickerVideoWithSvgOverlay(
   const filter = [
     `[0:v]${videoFilter}[base]`,
     "[1:v]format=rgba[ticker]",
-    `[base][ticker]overlay=x='main_w-mod(t*${ffmpegSpeed}\\,main_w+overlay_w)':y='(main_h-${bannerHeight})*${settings.verticalPosition}/100':format=auto[v]`,
+    `[base][ticker]overlay=x='main_w-mod(t*${ffmpegSpeed}\\,main_w+overlay_w)':y=${bannerY}:format=auto[v]`,
   ].join(";");
 
   const args = [
@@ -512,7 +523,8 @@ async function getVideoDuration(inputPath) {
 
 function makeTickerAss(settings, duration, bannerHeight) {
   const fontSize = Math.round(settings.fontSize);
-  const top = ((1920 - bannerHeight) * settings.verticalPosition) / 100;
+  const top =
+    ((OUTPUT_HEIGHT - bannerHeight) * settings.verticalPosition) / 100;
   const baseline = Math.round(top + (bannerHeight + fontSize * 0.72) / 2);
   const durationMs = Math.max(1000, Math.round(duration * 1000));
   const estimatedTextWidth = Math.max(
